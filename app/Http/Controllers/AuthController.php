@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -30,11 +29,20 @@ class AuthController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
+        if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        $respuesta = [
+            'mensaje' => 'Correcto',
+            'codigo' => 200,
+            'payload' => [
+                'token' => $this->respondWithToken($token)->original['token'],
+                'usuario' => $this->me()->original,
+            ],
+        ];
+
+        return response()->json($respuesta);
     }
 
     /**
@@ -44,7 +52,16 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        $rol = User::join("roles", "roles.id", "=", "users.rol")
+            ->select("roles.rol")
+            ->get();
+
+        $usuario = auth()->user();
+        $usuario->rol = $rol[0]->rol;
+        unset($usuario['created_at']);
+        unset($usuario['updated_at']);
+
+        return response()->json($usuario);
     }
 
     /**
@@ -79,20 +96,20 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         return response()->json([
-            'access_token' => $token,
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'token' => $token,
         ]);
     }
 
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'username' => 'required|string|unique:users',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:6',
+            'rol' => 'required|int',
         ]);
-        if($validator->fails()){
-            return response()->json($validator->errors()->toJson(),400);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
         }
 
         $user = User::create(array_merge(
@@ -102,7 +119,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => '¡Usuario registrado exitosamente!',
-            'user' => $user
+            'user' => $user,
         ], 201);
     }
 }

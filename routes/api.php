@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotasController;
+use App\Http\Controllers\NotasSubtemaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,4 +30,22 @@ Route::group([
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
     Route::post('register', [AuthController::class, 'register']);
+});
+
+Route::group([
+    'prefix' => 'notas'
+], function ($router) {
+    Route::post('crear', [NotasController::class, 'crear']); 
+    Route::put('actualizar', [NotasController::class, 'actualizar']);
+    Route::get('consultar/todo', [NotasController::class, 'consultarTodo']);
+    Route::get('consultar/{id_nota}', [NotasController::class, 'consultar']);
+});
+
+Route::group([
+    'prefix' => 'subtemas'
+], function ($router) {
+    Route::post('crear', [NotasSubtemaController::class, 'crear']);
+    Route::put('actualizar', [NotasSubtemaController::class, 'actualizar']);
+    Route::get('consultar/todo', [NotasSubtemaController::class, 'consultarTodo']);
+    Route::get('consultar/{id_nota}', [NotasSubtemaController::class, 'consultar']);
 });
