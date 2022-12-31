@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotasController;
 use App\Http\Controllers\NotasSubtemaController;
+use App\Http\Controllers\AreasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +39,8 @@ Route::group([
     Route::post('crear', [NotasController::class, 'crear']); 
     Route::put('actualizar', [NotasController::class, 'actualizar']);
     Route::get('consultar/todo', [NotasController::class, 'consultarTodo']);
-    Route::get('consultar/{id_nota}', [NotasController::class, 'consultar']);
+    Route::get('consultar/notas-usuario/{id_usuario}', [NotasController::class, 'consultarNotasUsuario']);
+    Route::get('consultar/nota-usuario-tema/{tema}', [NotasController::class, 'consultarNotaUsuarioNombre']);
 });
 
 Route::group([
@@ -48,4 +50,12 @@ Route::group([
     Route::put('actualizar', [NotasSubtemaController::class, 'actualizar']);
     Route::get('consultar/todo', [NotasSubtemaController::class, 'consultarTodo']);
     Route::get('consultar/{id_nota}', [NotasSubtemaController::class, 'consultar']);
+});
+
+Route::group([
+    'prefix' => 'areas'
+], function ($router) {
+    Route::get('consultar/areas', [AreasController::class, 'consultarTodaAreas']);
+    Route::get('consultar/subareas', [AreasController::class, 'consultarTodaSubareas']);
+    Route::get('consultar/subareas/{idArea}', [AreasController::class, 'consultarSubareasEspecifica']);
 });

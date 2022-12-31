@@ -14,6 +14,7 @@ class Nota extends Model
         'id_user', 
         'id_area_conocimiento', 
         'tema', 
+        'identificador',
         'created_at', 
         'updated_at',
     ];

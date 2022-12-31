@@ -18,8 +18,10 @@ class NotasSubtemaController extends Controller
         $datos_request = array_map('trim', $request->all());
 
         $validator = Validator::make($request->all(), [
-            'id_nota' => 'int|required',
-            'subtema' => 'string|required|max:120',
+            'idNota' => 'int|required',
+            'subtema' => 'string|required|max:200',
+            'base64' => 'string|required',
+            'html' => 'string|required',
         ]);
 
         if ($validator->fails()) {
@@ -27,12 +29,14 @@ class NotasSubtemaController extends Controller
         }
 
         $notasSubtema = new NotaSubtema();
-        $notasSubtema->id_nota = $datos_request['id_nota'];
+        $notasSubtema->idNota = $datos_request['idNota'];
         $notasSubtema->subtema = $datos_request['subtema'];
+        $notasSubtema->base64 = $datos_request['base64'];
+        $notasSubtema->html = $datos_request['html'];
 
         $notasSubtema->save();
 
-        return response()->json(Respuestas::respuesta200NoResultados('Se creo la nota.'));
+        return response()->json(Respuestas::respuesta200NoResultados('Se creo el subtema.'));
     }
 
     public function actualizar(Request $request)
