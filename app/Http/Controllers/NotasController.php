@@ -16,7 +16,6 @@ class NotasController extends Controller
          *  Método para crear una nota hecha por el usuario
          */
 
-
         $validator = Validator::make($request->all(), [
             'idUsuario' => 'int|required',
             'idAreaConocimiento' => 'int|required',
@@ -32,15 +31,14 @@ class NotasController extends Controller
 
         $nota = new Nota();
         $nota->id_user = $request->idUsuario;
-        $nota->identificador =  $identificador;
+        $nota->identificador = $identificador;
         $nota->id_area_conocimiento = $request->idAreaConocimiento;
         $nota->id_subarea = $request->idSubarea;
         $nota->tema = $request->tema;
- 
+
         $nota->save();
 
         $nota = Nota::where('identificador', $identificador)->get();
-        
 
         return response()->json(Respuestas::respuesta200('Se creo la nota.', $nota[0]));
     }
@@ -51,10 +49,10 @@ class NotasController extends Controller
          *  Método para actualizar una nota hecha por el usuario
          */
 
-         $idUsuario = $request->idUsuario;
-         $idNota = $request->idNota;
+        $idUsuario = $request->idUsuario;
+        $idNota = $request->idNota;
 
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'idUsuario' => 'int|required',
             'idNota' => 'int|required',
             'idAreaConocimiento' => 'int|required',
@@ -71,7 +69,7 @@ class NotasController extends Controller
         $datosActualizado = [
             'id_area_conocimiento' => $request->idAreaConocimiento,
             'id_subarea' => $request->idSubareaConocimiento,
-            'tema' => $request->tema
+            'tema' => $request->tema,
         ];
 
         Nota::where('id_user', $idUsuario)

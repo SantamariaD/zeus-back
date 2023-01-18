@@ -2,10 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotasController;
 use App\Http\Controllers\NotasSubtemaController;
 use App\Http\Controllers\AreasController;
+use App\Http\Controllers\MultimediaNotasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,10 +48,12 @@ Route::group([
 Route::group([
     'prefix' => 'subtemas'
 ], function ($router) {
-    Route::post('crear', [NotasSubtemaController::class, 'crear']);
+    Route::post('crear', [NotasSubtemaController::class, 'crearSubtema']);
     Route::put('actualizar', [NotasSubtemaController::class, 'actualizar']);
     Route::get('consultar/todo', [NotasSubtemaController::class, 'consultarTodo']);
     Route::get('consultar/{id_nota}', [NotasSubtemaController::class, 'consultar']);
+    Route::get('consultar/nota-subtemas/{idNota}', [NotasSubtemaController::class, 'consultarSubtemasNota']);
+    Route::post('guardar-archivo', [NotasSubtemaController::class, 'guardarArchivo']);
 });
 
 Route::group([
@@ -59,3 +63,12 @@ Route::group([
     Route::get('consultar/subareas', [AreasController::class, 'consultarTodaSubareas']);
     Route::get('consultar/subareas/{idArea}', [AreasController::class, 'consultarSubareasEspecifica']);
 });
+
+Route::group([
+    'prefix' => 'multimedia'
+], function ($router) {
+    Route::post('guardar-archivo', [MultimediaNotasController::class, 'guardarArchivo']);
+    Route::post('traer-archivo', [MultimediaNotasController::class, 'traerArchivo']);
+    Route::post('descargar-archivo', [MultimediaNotasController::class, 'descargarArchivo']);
+});
+

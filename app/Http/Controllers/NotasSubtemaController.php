@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Nota;
 use App\Models\NotaSubtema;
+use App\Models\Subtitulo;
 use App\Respuestas\Respuestas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class NotasSubtemaController extends Controller
 {
-    public function crear(Request $request)
+    public function crearSubtema(Request $request)
     {
         /**
          *  Método para crear un subtema de la nota hecha por el usuario
@@ -18,25 +21,61 @@ class NotasSubtemaController extends Controller
         $datos_request = array_map('trim', $request->all());
 
         $validator = Validator::make($request->all(), [
-            'idNota' => 'int|required',
+            'nota_id' => 'int|required',
             'subtema' => 'string|required|max:200',
-            'base64' => 'string|required',
-            'html' => 'string|required',
+            'numerosubtema' => 'float|required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(Respuestas::respuesta400($validator->errors()));
         }
 
+        $uuid = Str::orderedUuid();
+
         $notasSubtema = new NotaSubtema();
-        $notasSubtema->idNota = $datos_request['idNota'];
+        $notasSubtema->nota_id = $datos_request['nota_id'];
         $notasSubtema->subtema = $datos_request['subtema'];
-        $notasSubtema->base64 = $datos_request['base64'];
-        $notasSubtema->html = $datos_request['html'];
+        $notasSubtema->numeroSubtema = $datos_request['numeroSubtema'];
+        $notasSubtema->uuid = $uuid;
 
         $notasSubtema->save();
 
-        return response()->json(Respuestas::respuesta200NoResultados('Se creo el subtema.'));
+        $notaSubtemaResponse = NotaSubtema::where('uuid', $uuid)->get();
+
+        return response()->json(Respuestas::respuesta200('Se creo el subtema.', $notaSubtemaResponse[0]));
+    }
+
+    public function crearSubtitulo(Request $request)
+    {
+        /**
+         *  Método para crear un subtitulo del subtema hecho por el usuario
+         */
+
+        $datos_request = array_map('trim', $request->all());
+
+        $validator = Validator::make($request->all(), [
+            'nota_id' => 'int|required',
+            'id_subtema' => 'string|required|max:200',
+            'subtitulo' => 'string|required',
+            'html' => 'string|required',
+            'numeroSubtitulo' => 'int|required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(Respuestas::respuesta400($validator->errors()));
+        }
+
+        $subtitulo = new NotaSubtema();
+        $subtitulo->nota_id = $datos_request['nota_id'];
+        $subtitulo->id_subtema = $datos_request['id_subtema'];
+        $subtitulo->subtitulo = $datos_request['subtitulo'];
+        $subtitulo->html = $datos_request['html'];
+        $subtitulo->numeroSubtitulo = $datos_request['numeroSubtitulo'];
+        $subtitulo->uuid = $uuid;
+
+        $subtitulo->save();
+
+        return response()->json(Respuestas::respuesta200('Se creo el subtitulo.'));
     }
 
     public function actualizar(Request $request)
@@ -50,7 +89,6 @@ class NotasSubtemaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'int|required',
-            'subtema' => 'string|required|max:120',
         ]);
 
         if ($validator->fails()) {
@@ -92,4 +130,41 @@ class NotasSubtemaController extends Controller
                 NotaSubtema::all())
         );
     }
+
+    public function consultarSubtemasNota($idNota)
+    {
+        /**
+         *  Método para consultar todos los subtemas de una nota
+         */
+
+        if (!$idNota) {
+            return response()->json(Respuestas::respuesta400($validator->errors()));
+        }
+
+        $respuestaBD = Nota::with(['notasubtemas', 'subtitulos'])->find($idNota);
+
+        $subtitulos = $respuestaBD['subtitulos'];
+        $notasSubtemas = $respuestaBD['notasubtemas'];
+        unset($respuestaBD['notasubtemas']);
+        unset($respuestaBD['subtitulos']);
+        $subtemas = [];
+        $subtitulosFiltrados = [];
+
+
+        foreach ($notasSubtemas as $subtema) {
+            foreach ($subtitulos as $subtitulo) {
+                if ($subtitulo['id_subtema'] == $subtema['id']) {
+                    array_push($subtitulosFiltrados, $subtitulo);
+                }
+            }
+            $subtema['subtitulo'] = $subtitulosFiltrados; 
+            $subtitulosFiltrados = [];
+        }
+        
+        $respuestaBD['subtemas'] = $notasSubtemas;
+
+        return response()->json(Respuestas::respuesta200('Consulta exitosa.', $respuestaBD));
+
+    }
+
 }

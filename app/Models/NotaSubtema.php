@@ -4,17 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Nota;
+use App\Models\Subtitulos;
 
 class NotaSubtema extends Model
 {
     use HasFactory;
 
-    protected $table = 'notas_subtemas';
+    protected $table = 'subtemas';
     protected $fillable = [
         'id', 
-        'idNota', 
+        'nota_id', 
+        'uuid',
         'subtema', 
-        'base64',
-        'html',
+        'numeroSubtema',
     ];
+
+    public function nota() {
+        return $this->belongsTo(Nota::class);
+    }
+
+    public function subtitulos()
+    {
+        return $this->hasMany(Subtitulos::class);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\NotaSubtema;
+use App\Models\Subtitulos;
 
 class Nota extends Model
 {
@@ -18,4 +20,12 @@ class Nota extends Model
         'created_at', 
         'updated_at',
     ];
+
+    public function notaSubtemas() {
+        return $this->hasMany(NotaSubtema::class);
+    }
+
+    public function subtitulos() {
+        return $this->hasMany(Subtitulos::class);
+    }
 }
