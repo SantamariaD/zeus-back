@@ -15,7 +15,7 @@ class Subtitulos extends Model
     protected $fillable = [
         'id',
         'nota_id', 
-        'id_subtema',
+        'subtema_id',
         'subtitulo',
         'html',
         'numeroSubtitulo',

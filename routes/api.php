@@ -43,6 +43,7 @@ Route::group([
     Route::get('consultar/todo', [NotasController::class, 'consultarTodo']);
     Route::get('consultar/notas-usuario/{id_usuario}', [NotasController::class, 'consultarNotasUsuario']);
     Route::get('consultar/nota-usuario-tema/{tema}', [NotasController::class, 'consultarNotaUsuarioNombre']);
+    Route::get('consultar/nota/imagen/{idUsuario}/{imagen}', [NotasController::class, 'consultarNotaImagen']);
 });
 
 Route::group([

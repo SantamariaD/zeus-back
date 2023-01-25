@@ -33,7 +33,7 @@ class AreasController extends Controller
             return response()->json(Respuestas::respuesta400($validator->errors()));
         }
 
-        $subareas = Subarea::where('id_area_conocimiento', $id_nota)->get();
+        $subareas = Subarea::where('area_id', $id_nota)->get();
 
         return response()->json(Respuestas::respuesta200('Consulta exitosa.', $subareas));
     }

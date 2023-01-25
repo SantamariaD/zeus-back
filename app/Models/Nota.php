@@ -13,12 +13,11 @@ class Nota extends Model
 
     protected $table = 'notas';
     protected $fillable = [
-        'id_user', 
-        'id_area_conocimiento', 
+        'user_id', 
+        'area_id', 
         'tema', 
-        'identificador',
-        'created_at', 
-        'updated_at',
+        'uuid',
+        'imagen', 
     ];
 
     public function notaSubtemas() {
