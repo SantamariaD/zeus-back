@@ -15,6 +15,7 @@ class Nota extends Model
     protected $fillable = [
         'user_id', 
         'area_id', 
+        'subarea_id',
         'tema', 
         'uuid',
         'imagen', 

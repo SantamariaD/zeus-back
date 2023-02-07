@@ -21,9 +21,8 @@ class NotasSubtemaController extends Controller
         $datos_request = array_map('trim', $request->all());
 
         $validator = Validator::make($request->all(), [
-            'nota_id' => 'int|required',
+            'idNota' => 'int|required',
             'subtema' => 'string|required|max:200',
-            'numerosubtema' => 'float|required',
         ]);
 
         if ($validator->fails()) {
@@ -33,7 +32,7 @@ class NotasSubtemaController extends Controller
         $uuid = Str::orderedUuid();
 
         $notasSubtema = new NotaSubtema();
-        $notasSubtema->nota_id = $datos_request['nota_id'];
+        $notasSubtema->nota_id = $datos_request['idNota'];
         $notasSubtema->subtema = $datos_request['subtema'];
         $notasSubtema->numeroSubtema = $datos_request['numeroSubtema'];
         $notasSubtema->uuid = $uuid;
@@ -41,8 +40,18 @@ class NotasSubtemaController extends Controller
         $notasSubtema->save();
 
         $notaSubtemaResponse = NotaSubtema::where('uuid', $uuid)->get();
+        $respuesta = [
+            "created_at" => $notaSubtemaResponse[0]->created_at,
+            "id" => $notaSubtemaResponse[0]->id,
+            "nota_id" => $notaSubtemaResponse[0]->nota_id,
+            "numeroSubtema" => $notaSubtemaResponse[0]->numeroSubtema,
+            "subtema" => $notaSubtemaResponse[0]->subtema,
+            "updated_at" => $notaSubtemaResponse[0]->updated_at,
+            "uuid" => $notaSubtemaResponse[0]->uuid,
+            "subtitulos" => []
+        ];
 
-        return response()->json(Respuestas::respuesta200('Se creo el subtema.', $notaSubtemaResponse[0]));
+        return response()->json(Respuestas::respuesta200('Se creo el subtema.', $respuesta));
     }
 
     public function crearSubtitulo(Request $request)
@@ -141,7 +150,11 @@ class NotasSubtemaController extends Controller
             return response()->json(Respuestas::respuesta400($validator->errors()));
         }
 
-        $respuestaBD = Nota::with(['notasubtemas', 'subtitulos'])->find($idNota);
+        $respuestaBD = Nota::join("areas_conocimiento", "notas.area_id", "=", "areas_conocimiento.id")
+            ->join("subareas", "notas.subarea_id", "=", "subareas.id")
+            ->select("notas.*", "areas_conocimiento.area", "subareas.subarea")
+            ->with(['notasubtemas', 'subtitulos'])
+            ->find($idNota);
 
         $subtitulos = $respuestaBD['subtitulos'];
         $notasSubtemas = $respuestaBD['notasubtemas'];
@@ -150,17 +163,16 @@ class NotasSubtemaController extends Controller
         $subtemas = [];
         $subtitulosFiltrados = [];
 
-
         foreach ($notasSubtemas as $subtema) {
             foreach ($subtitulos as $subtitulo) {
-                if ($subtitulo['id_subtema'] == $subtema['id']) {
+                if ($subtitulo['subtema_id'] == $subtema['id']) {
                     array_push($subtitulosFiltrados, $subtitulo);
                 }
             }
-            $subtema['subtitulo'] = $subtitulosFiltrados; 
+            $subtema['subtitulo'] = $subtitulosFiltrados;
             $subtitulosFiltrados = [];
         }
-        
+
         $respuestaBD['subtemas'] = $notasSubtemas;
 
         return response()->json(Respuestas::respuesta200('Consulta exitosa.', $respuestaBD));

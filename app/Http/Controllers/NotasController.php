@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Nota;
 use App\Respuestas\Respuestas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class NotasController extends Controller
 {
@@ -43,13 +43,17 @@ class NotasController extends Controller
         $nota = new Nota();
         $nota->user_id = $request->idUsuario;
         $nota->area_id = $request->idAreaConocimiento;
+        $nota->subarea_id = $request->idSubarea;
         $nota->uuid = $uuid;
         $nota->imagen = $uuid . '.' . $extension;
         $nota->tema = $request->tema;
 
         $nota->save();
 
-        $nota = Nota::where('uuid', $uuid)->get();
+        $nota = Nota::join("areas_conocimiento", "notas.area_id", "=", "areas_conocimiento.id")
+            ->select("notas.*", "areas_conocimiento.area")
+            ->where('uuid', $uuid)
+            ->get();
 
         return response()->json(Respuestas::respuesta200('Se creo la nota.', $nota[0]));
     }
